@@ -1,0 +1,53 @@
+sms-cli :: command line SMS sender
+==================================
+
+sms-cli is a configurable command line SMS sending tool, useful
+for sending text messages for instance from scripts.
+
+Installation
+------------
+No stable releases have been published so far. To use sms-cli
+simply check-out the code from GitHub:
+  git clone https://github.com/mludvig/sms-cli.git
+
+Usage
+-----
+Basic usage is very simple:
+
+  ~ $ sms-cli --recipient +123-456-7890 --message "Some message :)"
+  INFO: SMS(Clickatell) sent to 1234567890 with ID: 9a8353aad0cb29
+
+The message can be sent to more than one recipient at the same
+time, just use more --recipient (or -r) parameters.
+
+Engines
+-------
+sms-cli can support a number of SMS gateways by way of "engines".
+
+At this moment the only supported gateway is Clickatell - south
+african operator that can send txts worldwide.
+See http://clickatell.com
+
+Configuration - Clickatell
+--------------------------
+Put this to your $HOME/.sms-cli.conf file:
+  [default]
+  sms_engine="GwClickatell"
+  sms_url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=APIID&user=USERNAME&password=PASSWORD&to=%(recipient)s&text=%(message)s"
+Replace APIID, USERNAME and PASSWORD with the values of your
+Clickatell account. Check out the Clickatell HTTP API
+documentation for more available options, e.g. for setting
+SenderID, delivery report callback, etc.
+
+Development and contributions
+-----------------------------
+To contribute new engines simply "fork" the source repository on
+GitHub, do your development and then send a "merge request" to
+push your changes back to the main tree.
+
+Start here: https://github.com/mludvig/sms-cli
+
+If in doubt contact the sms-cli author and maintainer:
+  Michal Ludvig <mludvig@logix.net.nz>
+
+Enjoy!
