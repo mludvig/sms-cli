@@ -6,7 +6,8 @@ class SmsError(Exception):
 
 class SmsSender(object):
 	def __init__(self, recipients = [], **kwargs):
-		driver_module = __import__(Config().sms_engine.replace(".","/"))
+		debug("Importing engine: %s" % Config().sms_engine)
+		driver_module = __import__("Sms." + Config().sms_engine, fromlist = ["Sms"])
 		self._driver = driver_module.SmsDriver(**kwargs)
 		self._recipients = recipients
 		self._message = ""

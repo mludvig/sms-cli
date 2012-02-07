@@ -10,13 +10,13 @@ class Config(object):
 	_instance = None
 	_parsed_files = []
 
-	sms_engine = "Sms.GwGenericHttp"	## Module must contain class SmsDriver
+	sms_engine = "GwGenericHttp"	## Module must contain class SmsDriver
 	sms_recipients = [ ]
 	sms_url_pattern = ""
 	sms_message = ""
 	sms_timestamp_format = "%m/%d %H:%M"
 	## Example config for Clickatell:
-	## sms_engine = "Sms.GwClickatell"
+	## sms_engine = "GwClickatell"
 	## sms_url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=APIID&user=USERNAME&password=PASSWORD&to=%(recipient)s&text=%(message)s"
 	## replace APIID, USERNAME and PASSWORD with the values of your Clickatell account
 
