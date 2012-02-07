@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-# sms.py - command line SMS sender
-# Michal Ludvig <michal@logix.cz>
-# http://www.logix.cz
+# sms-cli - command line SMS sender
+# Michal Ludvig <mludvig@logix.net.nz>
+# http://www.logix.cz/michal/devel/sms-cli
+## License: GPL Version 2
 
 import os
 import sys
@@ -17,7 +18,7 @@ from Sms.Config import Config
 from Sms.Sender import SmsSender
 
 try:
-	default_config_file=os.getenv("HOME")+"/.smscfg"
+	default_config_file=os.getenv("HOME")+"/.sms-cli.conf"
 except:
 	default_config_file="<unset>"
 
