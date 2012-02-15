@@ -35,7 +35,6 @@ optparser.add_option("-f", "--config", dest="config", metavar="FILE", help="Conf
 optparser.add_option("-p", "--profile", dest="profile", action="store", metavar="PROFILE", help="Config file profile / section to process. Defaults to [default]")
 optparser.add_option(      "--debug", dest="verbosity", action="store_const", const=logging.DEBUG, help="Enable debug output.")
 optparser.add_option(      "--quiet", dest="verbosity", action="store_const", const=logging.WARNING, help="Suppres most messages. Only Warnings and Errors are printed.")
-optparser.add_option(      "--dump-config", dest="dump_config", action="store_true", help="Dump current configuration after parsing config files and command line options and exit.")
 
 (options, args) = optparser.parse_args()
 
@@ -71,10 +70,6 @@ for option in cfg.option_list():
 	except AttributeError:
 		## Some Config() options are not settable from command line
 		pass
-
-if options.dump_config:
-	cfg.dump_config(sys.stdout)
-	sys.exit(0)
 
 if not options.message or not cfg.sms_recipients:
 	sys.stderr.write('Message and at least one recipient must be set!\n')

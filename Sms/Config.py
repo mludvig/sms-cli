@@ -58,9 +58,6 @@ class Config(object):
 			self.update_option(option, cp.get(option))
 		self._parsed_files.append(configfile)
 
-	def dump_config(self, stream):
-		ConfigDumper(stream).dump(self.profile, self)
-
 	def update_option(self, option, value):
 		if value is None:
 			return
@@ -144,13 +141,4 @@ class ConfigParser(object):
 		if self.cfg.has_key(name):
 			return self.cfg[name]
 		return default
-
-class ConfigDumper(object):
-	def __init__(self, stream):
-		self.stream = stream
-
-	def dump(self, section, config):
-		self.stream.write("[%s]\n" % section)
-		for option in config.option_list():
-			self.stream.write("%s = %s\n" % (option, getattr(config, option)))
 
