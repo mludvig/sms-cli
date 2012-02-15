@@ -26,4 +26,3 @@ class SmsConfigError(SmsException):
     pass
 
 # vim:et:ts=4:sts=4:ai
-

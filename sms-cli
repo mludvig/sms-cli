@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-# sms-cli - command line SMS sender
-# Michal Ludvig <mludvig@logix.net.nz>
-# http://www.logix.cz/michal/devel/sms-cli
+## sms-cli - command line SMS sender
+## Michal Ludvig <mludvig@logix.net.nz>
+## http://www.logix.cz/michal/devel/sms-cli
 ## License: GPL Version 2
 
 import os
@@ -19,9 +19,9 @@ from Sms.Sender import SmsSender
 from Sms.Exceptions import *
 
 try:
-	default_config_file=os.getenv("HOME")+"/.sms-cli.conf"
+    default_config_file=os.getenv("HOME")+"/.sms-cli.conf"
 except:
-	default_config_file="<unset>"
+    default_config_file="<unset>"
 
 ## Parse command line options
 default_verbosity = Config().verbosity
@@ -44,37 +44,39 @@ logging.basicConfig(level=options.verbosity, format='%(levelname)s: %(message)s'
 
 ## Now finally parse the config file
 try:
-	cfg = Config(options.config, options.profile)
+    cfg = Config(options.config, options.profile)
 except IOError, e:
-	if options.config != default_config_file:
-		error("%s: %s"	% (options.config, e.strerror))
-		sys.exit(1)
-	else:
-		cfg = Config()
+    if options.config != default_config_file:
+        error("%s: %s"  % (options.config, e.strerror))
+        sys.exit(1)
+    else:
+        cfg = Config()
 except SmsConfigError, e:
-	error(e.message)
-	sys.exit(1)
+    error(e.message)
+    sys.exit(1)
 
 ## And again some logging level adjustments
 ## according to configfile and command line parameters
 if options.verbosity != default_verbosity:
-	cfg.verbosity = options.verbosity
+    cfg.verbosity = options.verbosity
 logging.root.setLevel(cfg.verbosity)
 
 ## Update Config with other parameters
 for option in cfg.option_list():
-	try:
-		if getattr(options, option) != None:
-			debug("Updating %s -> %s" % (option, getattr(options, option)))
-			cfg.update_option(option, getattr(options, option))
-			delattr(options, option)
-	except AttributeError:
-		## Some Config() options are not settable from command line
-		pass
+    try:
+        if getattr(options, option) != None:
+            debug("Updating %s -> %s" % (option, getattr(options, option)))
+            cfg.update_option(option, getattr(options, option))
+            delattr(options, option)
+    except AttributeError:
+        ## Some Config() options are not settable from command line
+        pass
 
 if not options.message or not options.recipients:
-	sys.stderr.write('Message and at least one recipient must be set!\n')
-	sys.exit(1)
+    sys.stderr.write('Message and at least one recipient must be set!\n')
+    sys.exit(1)
 
 sms = SmsSender()
 sms.send(message = options.message, recipients = options.recipients)
+
+# vim:et:ts=4:sts=4:ai
