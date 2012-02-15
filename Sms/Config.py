@@ -6,6 +6,8 @@ import logging
 from logging import debug, info, warning, error
 import re
 
+from Exceptions import *
+
 class Config(object):
 	_instance = None
 	_parsed_files = []
@@ -20,15 +22,18 @@ class Config(object):
 	## sms_url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=APIID&user=USERNAME&password=PASSWORD&to=%(recipient)s&text=%(message)s"
 	## replace APIID, USERNAME and PASSWORD with the values of your Clickatell account
 
+	profile = "default"
 	verbosity = logging.INFO
 
 	## Creating a singleton
-	def __new__(self, configfile = None):
+	def __new__(self, configfile = None, profile = None):
 		if self._instance is None:
 			self._instance = object.__new__(self)
 		return self._instance
 
-	def __init__(self, configfile = None):
+	def __init__(self, configfile = None, profile = None):
+		if profile:
+			self.profile = profile
 		if configfile:
 			self.read_config_file(configfile)
 
@@ -48,13 +53,13 @@ class Config(object):
 		return retval
 
 	def read_config_file(self, configfile):
-		cp = ConfigParser(configfile)
+		cp = ConfigParser(configfile, self.profile)
 		for option in self.option_list():
 			self.update_option(option, cp.get(option))
 		self._parsed_files.append(configfile)
 
 	def dump_config(self, stream):
-		ConfigDumper(stream).dump("default", self)
+		ConfigDumper(stream).dump(self.profile, self)
 
 	def update_option(self, option, value):
 		if value is None:
@@ -83,31 +88,38 @@ class Config(object):
 			setattr(Config, option, value)
 
 class ConfigParser(object):
-	def __init__(self, file, sections = []):
+	def __init__(self, cfgfile, section):
 		self.cfg = {}
-		self.parse_file(file, sections)
+		self.parse_file(cfgfile, section)
 	
-	def parse_file(self, file, sections = []):
-		debug("ConfigParser: Reading file '%s'" % file)
-		if type(sections) != type([]):
-			sections = [sections]
-		in_our_section = True
-		f = open(file, "r")
+	def parse_file(self, cfgfile, section):
+		debug("ConfigParser: Reading file '%s' [section: %s]" % (cfgfile, section))
+		in_our_section = False
+		our_section_found = False
+		try:
+			f = open(cfgfile, "r")
+		except Exception, e:
+			error(str(e))
+			raise
 		r_comment = re.compile("^\s*#.*")
 		r_empty = re.compile("^\s*$")
 		r_section = re.compile("^\[([^\]]+)\]")
 		r_data = re.compile("^\s*(?P<key>\w+)\s*=\s*(?P<value>.*)")
 		r_quotes = re.compile("^\"(.*)\"\s*$")
 		for line in f:
+			line = line.strip()
 			if r_comment.match(line) or r_empty.match(line):
 				continue
 			is_section = r_section.match(line)
 			if is_section:
-				section = is_section.groups()[0]
-				in_our_section = (section in sections) or (len(sections) == 0)
+				this_section = is_section.groups()[0]
+				in_our_section = (this_section == section)
 				continue
+			if not in_our_section:
+				continue
+			our_section_found = True
 			is_data = r_data.match(line)
-			if is_data and in_our_section:
+			if is_data:
 				data = is_data.groupdict()
 				if r_quotes.match(data["value"]):
 					data["value"] = data["value"][1:-1]
@@ -118,7 +130,9 @@ class ConfigParser(object):
 					print_value = data["value"]
 				debug("ConfigParser: %s->%s" % (data["key"], print_value))
 				continue
-			warning("Ignoring invalid line in '%s': %s" % (file, line))
+			raise SmsConfigError("%s: invalid line: %s" % (cfgfile, line))
+		if not our_section_found:
+			raise SmsConfigError("%s: profile [%s] not found" % (cfgfile, section))
 
 	def __getitem__(self, name):
 		return self.cfg[name]
