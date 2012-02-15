@@ -9,7 +9,7 @@ from Exceptions import *
 class SmsSender(object):
     def __init__(self, recipients = [], engine_options = {}, **kwargs):
         debug("Importing engine: %s" % Config().engine)
-        driver_module = __import__("Sms." + Config().engine, fromlist = ["Sms"])
+        driver_module = __import__("Sms.Engines." + Config().engine, fromlist = ["Sms.Engines"])
         self._driver = driver_module.SmsDriver(options = Config().engine_options(), **kwargs)
         self._recipients = recipients
         self._message = ""

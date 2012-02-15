@@ -3,10 +3,10 @@
 ## License: GPL Version 2
 
 from logging import debug, info
-from Exceptions import SmsError
-import Sms.GwGenericHttp
+from Sms.Exceptions import SmsError
+import GenericHttp
 
-class SmsDriver(Sms.GwGenericHttp.SmsDriver):
+class SmsDriver(GenericHttp.SmsDriver):
     def send(self, message, recipient):
         ret = super(self.__class__, self).send(message, recipient)
         arr = ret.split("\n")[0].split(" ", 1)

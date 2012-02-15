@@ -32,8 +32,8 @@ Configuration - Clickatell
 --------------------------
 Put this to your $HOME/.sms-cli.conf file:
   [default]
-  sms_engine="GwClickatell"
-  sms_url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=APIID&user=USERNAME&password=PASSWORD&to=%(recipient)s&text=%(message)s"
+  engine="Clickatell"
+  url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=APIID&user=USERNAME&password=PASSWORD&to=%(recipient)s&text=%(message)s"
 Replace APIID, USERNAME and PASSWORD with the values of your
 Clickatell account. Check out the Clickatell HTTP API
 documentation for more available options, e.g. for setting

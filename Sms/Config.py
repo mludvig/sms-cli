@@ -13,7 +13,7 @@ class Config(object):
     _parsed_files = []
     _engine_options = {}
 
-    engine = "GwGenericHttp"    ## Module must export class SmsDriver
+    engine = "GenericHttp"    ## Module must export class SmsDriver
     timestamp_format = "%m/%d %H:%M"
 
     profile = "default"

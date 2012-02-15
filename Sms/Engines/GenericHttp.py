@@ -5,8 +5,8 @@
 import urllib
 import urllib2
 
-from Exceptions import *
-from GenericSmsDriver import GenericSmsDriver
+from Sms.Exceptions import *
+from Sms.GenericSmsDriver import GenericSmsDriver
 
 class SmsDriver(GenericSmsDriver):
     def send(self, message, recipient):
