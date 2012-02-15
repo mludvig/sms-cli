@@ -19,6 +19,9 @@ class SmsException(Exception):
         self._message = message
     message = property(_get_message, _set_message)
 
+class SmsError(SmsException):
+    pass
+
 class SmsConfigError(SmsException):
     pass
 

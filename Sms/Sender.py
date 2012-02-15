@@ -1,14 +1,12 @@
 from logging import debug, error
 from Config import Config
-
-class SmsError(Exception):
-	pass
+from Exceptions import *
 
 class SmsSender(object):
-	def __init__(self, recipients = [], **kwargs):
-		debug("Importing engine: %s" % Config().sms_engine)
-		driver_module = __import__("Sms." + Config().sms_engine, fromlist = ["Sms"])
-		self._driver = driver_module.SmsDriver(**kwargs)
+	def __init__(self, recipients = [], engine_options = {}, **kwargs):
+		debug("Importing engine: %s" % Config().engine)
+		driver_module = __import__("Sms." + Config().engine, fromlist = ["Sms"])
+		self._driver = driver_module.SmsDriver(options = Config().engine_options(), **kwargs)
 		self._recipients = recipients
 		self._message = ""
 

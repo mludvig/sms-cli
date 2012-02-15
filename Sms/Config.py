@@ -11,16 +11,10 @@ from Exceptions import *
 class Config(object):
 	_instance = None
 	_parsed_files = []
+	_engine_options = {}
 
-	sms_engine = "GwGenericHttp"	## Module must contain class SmsDriver
-	sms_recipients = [ ]
-	sms_url_pattern = ""
-	sms_message = ""
-	sms_timestamp_format = "%m/%d %H:%M"
-	## Example config for Clickatell:
-	## sms_engine = "GwClickatell"
-	## sms_url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=APIID&user=USERNAME&password=PASSWORD&to=%(recipient)s&text=%(message)s"
-	## replace APIID, USERNAME and PASSWORD with the values of your Clickatell account
+	engine = "GwGenericHttp"	## Module must export class SmsDriver
+	timestamp_format = "%m/%d %H:%M"
 
 	profile = "default"
 	verbosity = logging.INFO
@@ -55,8 +49,10 @@ class Config(object):
 	def read_config_file(self, configfile):
 		cp = ConfigParser(configfile, self.profile)
 		for option in self.option_list():
-			self.update_option(option, cp.get(option))
+			self.update_option(option, cp.pop(option))
 		self._parsed_files.append(configfile)
+		self._engine_options = cp.get_all()
+		debug("Engine Options: %s" % self.engine_options())
 
 	def update_option(self, option, value):
 		if value is None:
@@ -83,6 +79,9 @@ class Config(object):
 				error("Config: value of option '%s' must be an integer, not '%s'" % (option, value))
 		else:							# string
 			setattr(Config, option, value)
+
+	def engine_options(self):
+		return self._engine_options
 
 class ConfigParser(object):
 	def __init__(self, cfgfile, section):
@@ -137,8 +136,16 @@ class ConfigParser(object):
 	def __setitem__(self, name, value):
 		self.cfg[name] = value
 	
+	def get_all(self):
+		return self.cfg
+
 	def get(self, name, default = None):
-		if self.cfg.has_key(name):
+		if name in self.cfg:
 			return self.cfg[name]
 		return default
 
+	def pop(self, name, default = None):
+		retval = self.get(name, default)
+		if name in self.cfg:
+			del self.cfg[name]
+		return retval

@@ -1,5 +1,5 @@
 from logging import debug, info
-from Sms.Sender import SmsError
+from Exceptions import SmsError
 import Sms.GwGenericHttp
 
 class SmsDriver(Sms.GwGenericHttp.SmsDriver):
