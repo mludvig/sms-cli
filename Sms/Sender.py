@@ -2,9 +2,9 @@
 ## http://www.logix.cz/michal/devel/sms-cli
 ## License: GPL Version 2
 
-from logging import debug, error
 from Config import Config
 from Exceptions import *
+from Logger import *
 
 class SmsSender(object):
     def __init__(self, recipients = [], engine_options = {}, **kwargs):

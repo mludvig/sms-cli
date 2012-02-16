@@ -2,7 +2,7 @@
 ## http://www.logix.cz/michal/devel/sms-cli
 ## License: GPL Version 2
 
-from logging import debug, info
+from Logger import *
 from Exceptions import *
 
 class GenericSmsDriver(object):

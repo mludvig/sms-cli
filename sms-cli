@@ -12,11 +12,11 @@ import datetime
 import logging
 
 from optparse import OptionParser
-from logging import debug, info, warning, error
 
 from Sms.Config import Config
 from Sms.Sender import SmsSender
 from Sms.Exceptions import *
+from Sms.Logger import *
 
 try:
     default_config_file=os.getenv("HOME")+"/.sms-cli.conf"
@@ -40,7 +40,7 @@ optparser.add_option(      "--quiet", dest="verbosity", action="store_const", co
 
 ## Some mucking with logging levels to enable
 ## debugging/verbose output for config file parser on request
-logging.basicConfig(level=options.verbosity, format='%(levelname)s: %(message)s')
+logger_init(level = options.verbosity)
 
 ## Now finally parse the config file
 try:
@@ -59,7 +59,7 @@ except SmsConfigError, e:
 ## according to configfile and command line parameters
 if options.verbosity != default_verbosity:
     cfg.verbosity = options.verbosity
-logging.root.setLevel(cfg.verbosity)
+logger_set_level(level = cfg.verbosity)
 
 ## Update Config with other parameters
 for option in cfg.option_list():
@@ -73,7 +73,7 @@ for option in cfg.option_list():
         pass
 
 if not options.message or not options.recipients:
-    sys.stderr.write('Message and at least one recipient must be set!\n')
+    error('Message and at least one recipient must be set!')
     sys.exit(1)
 
 sms = SmsSender()

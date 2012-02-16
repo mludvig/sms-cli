@@ -3,10 +3,10 @@
 ## License: GPL Version 2
 
 import logging
-from logging import debug, info, warning, error
 import re
 
 from Exceptions import *
+from Logger import *
 
 class Config(object):
     _instance = None
