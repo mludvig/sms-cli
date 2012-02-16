@@ -1,0 +1,10 @@
+[clickatell]
+# Clickatell gateway - http://clickatell.com
+engine = "Clickatell"
+url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=XXXXX&user=XXXXX&password=XXXXX&from=XXXXX&to=%(recipient)s&text=%(message)s&concat=3"
+
+[messagemedia]
+# Message Media gateway - http://message-media.com
+engine = "MessageMedia"
+username = "XXXXX"
+password = "XXXXX"
