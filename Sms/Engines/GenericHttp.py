@@ -7,13 +7,30 @@ import urllib2
 
 from Sms.Exceptions import *
 from Sms.GenericSmsDriver import GenericSmsDriver
+from Sms.Logger import *
 
 class SmsDriver(GenericSmsDriver):
+    url_pattern = None
+
+    def __init__(self, options):
+        ret = GenericSmsDriver.__init__(self, options)
+        if not self.url_pattern:
+            try:
+                self.url_pattern = self.options['url_pattern'].strip('"\'')
+            except KeyError, e:
+                raise SmsConfigError("GenericHttp driver requires 'url_pattern' option")
+
     def send(self, message, recipient):
-        url = self.options['url_pattern'].strip('"\'') % { 'message' : urllib.quote(message), 'recipient' : recipient }
+        all_options = { 'message' : urllib.quote(message), 'recipient' : recipient }
+        all_options.update(self.options)
+        url = self.url_pattern % all_options
+        debug("GenericHttp: url: %s" % url)
         u = urllib2.urlopen(url)
+        debug("GenericHttp: ret_code: %s" % u.code)
         if u.code != 200:
             raise SmsError("HTTP Return code = %d" % u.code)
-        return u.read()
+        ret_data = u.read()
+        debug("GenericHttp: ret_data: %s" % ret_data)
+        return ret_data
 
-# vim:et:ts=4:sts=4:ai
+# vim: et:sw=4:sts=4:sta:ai:

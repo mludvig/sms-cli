@@ -1,10 +1,23 @@
+## Template for sms-cli configuration file.
+## Copy it to ~/.sms-cli.conf and fill in
+## your login details.
+
+[default]
+## Generic HTTP-based API
+engine = GenericHttp
+url_pattern = "https://sms.provider.com/http/sendmsg?user=XXXXX&password=XXXXX&to=%(recipient)s&text=%(message)s"
+
 [clickatell]
-# Clickatell gateway - http://clickatell.com
+## Clickatell gateway - http://clickatell.com
 engine = "Clickatell"
-url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=XXXXX&user=XXXXX&password=XXXXX&from=XXXXX&to=%(recipient)s&text=%(message)s&concat=3"
+user = "XXXXX"
+password = "XXXXX"
+api_id = "XXXXX"
+## Optional parameters
+#extras = "from=XXXXX&concat=3&..."
 
 [messagemedia]
-# Message Media gateway - http://message-media.com
+## Message Media gateway - http://message-media.com
 engine = "MessageMedia"
 username = "XXXXX"
 password = "XXXXX"

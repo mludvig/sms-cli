@@ -7,8 +7,10 @@ from Sms.Exceptions import SmsError
 import GenericHttp
 
 class SmsDriver(GenericHttp.SmsDriver):
+    url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=%(api_id)s&user=%(user)s&password=%(password)s&to=%(recipient)s&text=%(message)s"
+
     def send(self, message, recipient):
-        ret = super(self.__class__, self).send(message, recipient)
+        ret = GenericHttp.SmsDriver.send(self, message, recipient)
         arr = ret.split("\n")[0].split(" ", 1)
         if arr[0].startswith("ID"):
             info("SMS(Clickatell) sent to %s with ID: %s" % (recipient, arr[1]))
