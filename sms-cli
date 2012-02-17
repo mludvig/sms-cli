@@ -76,7 +76,14 @@ if not options.message or not options.recipients:
     error('Message and at least one recipient must be set!')
     sys.exit(1)
 
-sms = SmsSender()
-sms.send(message = options.message, recipients = options.recipients)
+try:
+    sms = SmsSender()
+    sms.send(message = options.message, recipients = options.recipients)
+except SmsConfigError, e:
+    error("Config file error: %s" % e)
+    sys.exit(1)
+except SmsException, e:
+    error(e)
+    sys.exit(1)
 
 # vim:et:ts=4:sts=4:ai
