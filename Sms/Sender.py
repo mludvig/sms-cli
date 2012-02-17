@@ -41,7 +41,6 @@ class SmsSender(object):
             try:
                 self._driver.sendMulti(message, recipients)
             except AttributeError:
-                raise
                 for recipient in recipients:
                     self._driver.sendOne(message, recipient)
         except SmsError, e:
@@ -50,4 +49,4 @@ class SmsSender(object):
 
         return True
 
-# vim:et:ts=4:sts=4:ai
+# vim: et:sw=4:sts=4:sta:ai:

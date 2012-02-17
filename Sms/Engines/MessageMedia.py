@@ -13,6 +13,9 @@ class SmsDriver(GenericSoap.SmsDriver):
     url = 'http://soap.m4u.com.au/?wsdl'
 
     def sendMulti(self, message, recipients):
+        debug("MessageMedia.sendMulti([%s])" % ", ".join(recipients))
+
+        # Soap Client
         client = Client(self.url, cache = self.cache)
 
         # Authentication
