@@ -41,8 +41,9 @@ class SmsSender(object):
             try:
                 self._driver.sendMulti(message, recipients)
             except AttributeError:
+                raise
                 for recipient in recipients:
-                    self._driver.send(message, recipient)
+                    self._driver.sendOne(message, recipient)
         except SmsError, e:
             error(str(e))
             return False

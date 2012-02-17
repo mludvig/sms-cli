@@ -13,7 +13,4 @@ class GenericSmsDriver(object):
         debug("Setting options to: %r" % options)
         self.options = options
 
-    def send(self, message, recipient):
-        raise SmsConfigError("GenericSmsDriver is not intended for direct use")
-
 # vim:et:ts=4:sts=4:ai

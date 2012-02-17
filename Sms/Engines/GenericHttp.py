@@ -20,7 +20,7 @@ class SmsDriver(GenericSmsDriver):
             except KeyError, e:
                 raise SmsConfigError("GenericHttp driver requires 'url_pattern' option")
 
-    def send(self, message, recipient):
+    def sendOne(self, message, recipient):
         all_options = { 'message' : urllib.quote(message), 'recipient' : recipient }
         all_options.update(self.options)
         url = self.url_pattern % all_options
@@ -31,6 +31,7 @@ class SmsDriver(GenericSmsDriver):
             raise SmsError("HTTP Return code = %d" % u.code)
         ret_data = u.read()
         debug("GenericHttp: ret_data: %s" % ret_data)
+        raise
         return ret_data
 
 # vim: et:sw=4:sts=4:sta:ai:
