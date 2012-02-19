@@ -21,3 +21,12 @@ api_id = "XXXXX"
 engine = "MessageMedia"
 username = "XXXXX"
 password = "XXXXX"
+
+[smsglobal]
+## SMS Global gateway - http://smsglobal.com
+engine = "SmsGlobal"
+username = "XXXXX"
+password = "XXXXX"
+# The 'sender' parameter may not always be
+# observed but must be set.
+sender = "XXXXX"

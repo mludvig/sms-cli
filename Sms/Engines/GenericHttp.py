@@ -30,7 +30,7 @@ class SmsDriver(GenericSmsDriver):
         debug("GenericHttp: ret_code: %s" % u.code)
         if u.code != 200:
             raise SmsError("HTTP Return code = %d" % u.code)
-        ret_data = u.read()
+        ret_data = u.read().strip()
         debug("GenericHttp: ret_data: %s" % ret_data)
         return ret_data
 
