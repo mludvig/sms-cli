@@ -7,7 +7,7 @@ from Sms.Exceptions import SmsError
 import GenericHttp
 
 class SmsDriver(GenericHttp.SmsDriver):
-    url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=%(api_id)s&user=%(user)s&password=%(password)s&to=%(recipient)s&text=%(message)s"
+    url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=%(api_id)s&user=%(username)s&password=%(password)s&to=%(recipient)s&text=%(message)s"
 
     def sendOne(self, message, recipient):
         debug("Clickatell.sendOne(%s)" % recipient)

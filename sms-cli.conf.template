@@ -10,7 +10,7 @@ url_pattern = "https://sms.provider.com/http/sendmsg?user=XXXXX&password=XXXXX&t
 [clickatell]
 ## Clickatell gateway - http://clickatell.com
 engine = "Clickatell"
-user = "XXXXX"
+username = "XXXXX"
 password = "XXXXX"
 api_id = "XXXXX"
 ## Optional parameters
