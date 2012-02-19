@@ -24,20 +24,18 @@ Engines
 -------
 sms-cli can support a number of SMS gateways by way of "engines".
 
-At this moment the only supported gateway is Clickatell - south
-african operator that can send txts worldwide.
-See http://clickatell.com
+At this moment the supported gateways / operators are:
+* Clickatell   - http://clickatell.com
+* MessageMedia - http://message-media.com
+* SMS Global   - http://smsglobal.com
 
-Configuration - Clickatell
---------------------------
-Put this to your $HOME/.sms-cli.conf file:
-  [default]
-  engine="Clickatell"
-  url_pattern = "https://api.clickatell.com/http/sendmsg?api_id=APIID&user=USERNAME&password=PASSWORD&to=%(recipient)s&text=%(message)s"
-Replace APIID, USERNAME and PASSWORD with the values of your
-Clickatell account. Check out the Clickatell HTTP API
-documentation for more available options, e.g. for setting
-SenderID, delivery report callback, etc.
+Configuration
+-------------
+Copy the example sms-cli.conf.template file to $HOME/.sms-cli.conf
+and fill in the access details for your operator. When using multiple
+operators configure each in their appropriate section and then use
+sms-cli with --profile option to select one. When no profile is
+requested the [default] section will be used.
 
 Development and contributions
 -----------------------------
