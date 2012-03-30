@@ -40,13 +40,26 @@ class SmsDriver(GenericSoap.SmsDriver):
         ret = client.service.sendMessages(auth, send_messages_t)
 
         error_recipients = []
-        for error in ret.errors.error:
-            for recipient in error.recipients.recipient:
-                warning("SMS(MessageMedia) failed to %s: %s" % (recipient.value, error._code))
-                error_recipients.append(recipient.value)
 
+        if 'errors' in dir(ret):
+                for error in ret.errors.error:
+                    for recipient in error.recipients.recipient:
+                        warning("SMS(MessageMedia) failed to %s: %s" % (recipient.value, error._code))
+                        error_recipients.append(recipient.value)
+
+        ids = []
         for recipient in message_t.recipients.recipient:
             if recipient.value not in error_recipients:
                 info("SMS(MessageMedia) sent to %s with ID: %s" % (recipient.value, recipient._uid))
+                ids.append(recipient._uid)
+
+        return ids
+
+    def sendOne(self, message, recipient):
+        ids = self.sendMulti(message, [recipient])
+        try:
+            return ids[0]
+        except:
+            return None
 
 # vim:et:sw=4:sts=4:ai:sta
