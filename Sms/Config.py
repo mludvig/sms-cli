@@ -89,20 +89,15 @@ class ConfigParser(object):
         self.parse_file(cfgfile, section)
 
     def parse_file(self, cfgfile, section):
-        debug("ConfigParser: Reading file '%s' [section: %s]" % (cfgfile, section))
+        debug("ConfigParser: Reading file '%s' [section: %s]" % (cfgfile.name, section))
         in_our_section = False
         our_section_found = False
-        try:
-            f = open(cfgfile, "r")
-        except Exception, e:
-            error(str(e))
-            raise
         r_comment = re.compile("^\s*#.*")
         r_empty = re.compile("^\s*$")
         r_section = re.compile("^\[([^\]]+)\]")
         r_data = re.compile("^\s*(?P<key>\w+)\s*=\s*(?P<value>.*)")
         r_quotes = re.compile("^\"(.*)\"\s*$")
-        for line in f:
+        for line in cfgfile:
             line = line.strip()
             if r_comment.match(line) or r_empty.match(line):
                 continue
