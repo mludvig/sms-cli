@@ -12,32 +12,35 @@ from suds.client import Client
 class SmsDriver(GenericSoap.SmsDriver):
     url = 'http://soap.m4u.com.au/?wsdl'
 
+    def __init__(self, options = {}):
+        GenericSoap.SmsDriver.__init__(self, options)
+
+        # Soap Client
+        self.client = Client(self.url, cache = self.cache)
+
+        # Authentication
+        self.auth = self.client.factory.create('AuthenticationType')
+        self.auth.userId = self.options['username']
+        self.auth.password = self.options['password']
+
     def sendMulti(self, message, recipients):
         debug("MessageMedia.sendMulti([%s])" % ", ".join(recipients))
 
-        # Soap Client
-        client = Client(self.url, cache = self.cache)
-
-        # Authentication
-        auth = client.factory.create('AuthenticationType')
-        auth.userId = self.options['username']
-        auth.password = self.options['password']
-
         # Message Type
-        message_t = client.factory.create("MessageType")
+        message_t = self.client.factory.create("MessageType")
         message_t.content = message
         message_t.deliveryReport = True
         for recipient in recipients:
-            message_t.recipients.recipient.append(client.factory.create("RecipientType"))
+            message_t.recipients.recipient.append(self.client.factory.create("RecipientType"))
             message_t.recipients.recipient[-1].value = recipient
             message_t.recipients.recipient[-1]._uid = random.randint(100000000, 999999999)
 
         # Container for multiple messages
-        send_messages_t = client.factory.create("SendMessagesBodyType")
+        send_messages_t = self.client.factory.create("SendMessagesBodyType")
         send_messages_t.messages.message.append(message_t)
 
         # Send it out
-        ret = client.service.sendMessages(auth, send_messages_t)
+        ret = self.client.service.sendMessages(self.auth, send_messages_t)
 
         error_recipients = []
 
