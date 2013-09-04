@@ -121,9 +121,9 @@ class ConfigParser(object):
                     print_value = data["value"]
                 debug("ConfigParser: %s->%s" % (data["key"], print_value))
                 continue
-            raise SmsConfigError("%s: invalid line: %s" % (cfgfile, line))
+            raise SmsConfigError("%s: invalid line: %s" % (cfgfile.name, line))
         if not our_section_found:
-            raise SmsConfigError("%s: profile [%s] not found" % (cfgfile, section))
+            raise SmsConfigError("%s: profile [%s] not found" % (cfgfile.name, section))
 
     def __getitem__(self, name):
         return self.cfg[name]
