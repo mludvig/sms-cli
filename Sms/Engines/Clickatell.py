@@ -11,11 +11,13 @@ class SmsDriver(GenericHttp.SmsDriver):
 
     def sendOne(self, message, recipient):
         debug("Clickatell.sendOne(%s)" % recipient)
-        ret = GenericHttp.SmsDriver.sendOne(self, message, recipient)
+        ret = GenericHttp.SmsDriver.sendOneLowLevel(self, message, recipient)
         arr = ret.split("\n")[0].split(" ", 1)
         if arr[0].startswith("ID"):
             info("SMS(Clickatell) sent to %s with ID: %s" % (recipient, arr[1]))
+            return SmsSendStatus(message, recipient = recipient, despatched = True, mid = arr[1])
         else:
             warning("SMS(Clickatell) failed to %s: %s" % (recipient, ret))
+            return SmsSendStatus(message, recipient = recipient, despatched = False, comment = ret)
 
 # vim: et:sw=4:sts=4:sta:ai:

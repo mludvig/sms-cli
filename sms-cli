@@ -15,6 +15,7 @@ import argparse
 
 from Sms.Config import Config
 from Sms.Sender import SmsSender
+from Sms.SimpleObjects import SmsMessage
 from Sms.Exceptions import *
 from Sms.Logger import *
 
@@ -39,6 +40,12 @@ def parse_args():
     parser_send = subparsers.add_parser("send", help="Send SMS message")
     parser_send.add_argument("-r", "--recipient", dest="recipients", action="append", required=True, metavar="PHONE-NUM", help="Cell phone number of message recipient. Can be used multiple times.")
     parser_send.add_argument("-m", "--message", dest="message", action="store", required=True, metavar="MESSAGE", help="Message to send to given Recipient(s)")
+
+    parser_replies = subparsers.add_parser("receive", help="Fetch received messaged from the gateway")
+    parser_replies.set_defaults(senders = [], ids = [])
+    parser_replies.add_argument("-s", "--sender", dest="senders", action="append", metavar="PHONE-NUM", help="Phone number of the sender. Can be used multiple times.")
+    parser_replies.add_argument("-i", "--id", dest="ids", action="append", metavar="ID", help="ID of a message previously sent for which we want the replies. Can be used multiple times. The format is engine-specific.")
+    parser_replies.add_argument("-k", "--keep", dest="keep", action="store_true", help="Keep the messages on the gateway, do not remove them. Some engines may not support this feature.")
 
     return parser.parse_args()
 
@@ -68,7 +75,19 @@ for option in cfg.option_list():
 
 try:
     sms = SmsSender()
-    sms.send(message = args.message, recipients = args.recipients)
+    if args.command == "send":
+        message = SmsMessage(message = args.message, recipients = args.recipients)
+        for status in sms.send(message):
+            if status.despatched:
+                info("Sent to %s: %s" % ("/".join(status.recipients), status.mid))
+            else:
+                warning("Failed to %s: %s" % ("/".join(status.recipients), status.comment))
+    elif args.command == "receive":
+        for message in sms.receive(senders = args.senders, in_reply_to = args.ids, keep = args.keep):
+            info("[%s] from %s: %s" % (message.timestamp, message.sender, message.message))
+    else:
+        raise SmsConfigError("Unknown command: %s" % args.command)
+
 except SmsConfigError, e:
     error("Config file error: %s" % e)
     sys.exit(1)

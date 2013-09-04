@@ -22,44 +22,18 @@ class SmsSender(object):
         debug("Importing engine: %s" % Config().engine)
         driver_module = __import__("Sms.Engines." + Config().engine, fromlist = ["Sms.Engines"])
         self._driver = driver_module.SmsDriver(options = Config().engine_options(), **kwargs)
-        self._recipients = recipients
-        self._message = ""
 
-    def addRecipient(self, recipient):
-        self._recipients.append(recipient)
+    def send(self, message):
+        return self._driver.send(message)
 
-    def clearRecipients(self):
-        self._recipients = recipients
+    def receive(self, senders = [], in_reply_to = [], keep = False):
+        assert(type(senders) == list)
+        assert(type(in_reply_to) == list)
 
-    def addMessage(self, message):
-        if self._message:
-            self._message += "\n"
-        self._message += message
+        if 'receive' not in dir(self._driver):
+            raise SmsError(message = "Not implemented in engine: %s" % self._driver.__module__)
 
-    def clearMessage(self):
-        self._message = ""
-
-    def send(self, message = None, recipients = []):
-        assert(type(recipients) == type([]))
-        if not message:
-            message = self._message
-            self.clearMessage()
-        if not recipients:
-            recipients = self._recipients
-
-        assert(message and recipients)
-
-        ids = []
-        try:
-            if 'sendMulti' in dir(self._driver):
-                ids = self._driver.sendMulti(message, recipients)
-            else:
-                for recipient in recipients:
-                    ids.append(self._driver.sendOne(message, recipient))
-        except SmsError, e:
-            return (False, e, ids)
-
-        return (True, ids)
+        return self._driver.receive(senders = senders, in_reply_to = in_reply_to, keep = keep)
 
     def get_status(self, messageid):
         return SmsStatus("UNKNOWN", "Not implemented")

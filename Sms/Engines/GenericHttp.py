@@ -20,8 +20,15 @@ class SmsDriver(GenericSmsDriver):
             except KeyError, e:
                 raise SmsConfigError("GenericHttp driver requires 'url_pattern' option")
 
-    def sendOne(self, message, recipient):
-        debug("GenericHttp.sendOne(%s)" % recipient)
+    def send(self, message):
+        mids = []
+        for recipient in message.recipients:
+            # sendOne() must be provided by the Engine
+            mids.append(self.sendOne(message.message, recipient))
+        return mids
+
+    def sendOneLowLevel(self, message, recipient):
+        debug("GenericHttp.sendOneLowLevel(%s)" % recipient)
         all_options = { 'message' : urllib.quote(message), 'recipient' : recipient }
         all_options.update(self.options)
         url = self.url_pattern % all_options

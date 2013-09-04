@@ -4,6 +4,7 @@
 
 from Sms.Logger import *
 from Sms.Exceptions import SmsError
+from Sms.SimpleObjects import SmsMessage, SmsSendStatus
 import GenericSoap
 
 import random
@@ -23,14 +24,14 @@ class SmsDriver(GenericSoap.SmsDriver):
         self.auth.userId = self.options['username']
         self.auth.password = self.options['password']
 
-    def sendMulti(self, message, recipients):
-        debug("MessageMedia.sendMulti([%s])" % ", ".join(recipients))
+    def send(self, message):
+        debug("MessageMedia.send([%s])" % ", ".join(message.recipients))
 
         # Message Type
         message_t = self.client.factory.create("MessageType")
-        message_t.content = message
+        message_t.content = message.message
         message_t.deliveryReport = True
-        for recipient in recipients:
+        for recipient in message.recipients:
             message_t.recipients.recipient.append(self.client.factory.create("RecipientType"))
             message_t.recipients.recipient[-1].value = recipient
             message_t.recipients.recipient[-1]._uid = random.randint(100000000, 999999999)
@@ -44,25 +45,48 @@ class SmsDriver(GenericSoap.SmsDriver):
 
         error_recipients = []
 
+        mids = []
         if 'errors' in dir(ret):
                 for error in ret.errors.error:
                     for recipient in error.recipients.recipient:
-                        warning("SMS(MessageMedia) failed to %s: %s" % (recipient.value, error._code))
+                        debug("SMS(MessageMedia) failed to %s: %s" % (recipient.value, error._code))
                         error_recipients.append(recipient.value)
+                        mids.append(SmsSendStatus(message.message, recipient = recipient.value, despatched = False, comment = error._code))
 
-        ids = []
         for recipient in message_t.recipients.recipient:
             if recipient.value not in error_recipients:
-                info("SMS(MessageMedia) sent to %s with ID: %s" % (recipient.value, recipient._uid))
-                ids.append(recipient._uid)
+                debug("SMS(MessageMedia) sent to %s with ID: %s" % (recipient.value, recipient._uid))
+                mids.append(SmsSendStatus(message.message, recipient = recipient.value, despatched = True, mid = recipient._uid))
+        return mids
 
-        return ids
+    def receive(self, senders = [], in_reply_to = [], keep = False):
+        check_replies_t = self.client.service.checkReplies(self.auth)
+        replies_raw = []
 
-    def sendOne(self, message, recipient):
-        ids = self.sendMulti(message, [recipient])
-        try:
-            return ids[0]
-        except:
-            return None
+        if not check_replies_t.replies:
+            return []
+
+        # Fetch new messages
+        if senders == [] and in_reply_to == []:
+            replies_raw = check_replies_t.replies.reply
+        else:
+            for reply_t in check_replies_t.replies.reply:
+                debug("SMS(MessageMedia) received sender=%s, uid=%s: %s" % (reply_t.origin, reply_t._uid, reply_t.content))
+                if str(reply_t._uid) in in_reply_to or reply_t.origin in senders:
+                    replies_raw.append(reply_t)
+
+        # Delete messages from the gateway
+        if replies_raw and not keep:
+            confirm_replies_t = self.client.factory.create("ConfirmRepliesBodyType")
+            for reply_t in replies_raw:
+                confirm_replies_t.replies.reply.append(self.client.factory.create("ConfirmItemType"))
+                confirm_replies_t.replies.reply[-1]._receiptId = str(reply_t._receiptId)
+                debug("SMS(MessageMedia) deleting sender=%s, uid=%s: %s" % (reply_t.origin, reply_t._uid, reply_t.content))
+            ret = self.client.service.confirmReplies(self.auth, confirm_replies_t)
+
+        replies = []
+        for reply in replies_raw:
+            replies.append(SmsMessage(message = reply.content, sender = reply.origin, mid = reply._uid, timestamp = reply.received))
+        return replies
 
 # vim:et:sw=4:sts=4:ai:sta
