@@ -47,6 +47,11 @@ def parse_args():
     parser_replies.add_argument("-i", "--id", dest="ids", action="append", metavar="ID", help="ID of a message previously sent for which we want the replies. Can be used multiple times. The format is engine-specific.")
     parser_replies.add_argument("-k", "--keep", dest="keep", action="store_true", help="Keep the messages on the gateway, do not remove them. Some engines may not support this feature.")
 
+    parser_report = subparsers.add_parser("status", help="Fetch delivery status reports")
+    parser_report.set_defaults(ids = [], keep = False)
+    parser_report.add_argument("-i", "--id", dest="ids", action="append", metavar="ID", help="ID of a message previously sent for which we want the delivery status report. Can be used multiple times. The format is engine-specific.")
+    parser_report.add_argument("-k", "--keep", dest="keep", action="store_true", help="Keep delivery status reports on the gateway, do not remove them. Some engines may not support this feature.")
+
     return parser.parse_args()
 
 ### Parse command line arguments
@@ -85,6 +90,9 @@ try:
     elif args.command == "receive":
         for message in sms.receive(senders = args.senders, in_reply_to = args.ids, keep = args.keep):
             info("[%s] from %s: %s" % (message.timestamp, message.sender, message.message))
+    elif args.command == "status":
+        for status in sms.get_status(mids = args.ids, keep = args.keep):
+            info("[%(timestamp)s] %(mid)s to %(recipient)s: %(status)s" % status)
     else:
         raise SmsConfigError("Unknown command: %s" % args.command)
 

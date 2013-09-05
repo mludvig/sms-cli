@@ -32,3 +32,21 @@ class SmsSendStatus(object):
                 self.mid = mid
                 self.comment = comment
                 self.xxkwargs = kwargs
+
+__all__.append("SmsDeliveryStatus")
+class SmsDeliveryStatus(object):
+    statuses = [ "UNKNOWN", "TRANSIT", "ERROR", "EXPIRED", "DELIVERED", "PENDING" ]
+
+    def __init__(self, recipient = None, mid = None, status = "UNKNOWN", timestamp = None, comment = ""):
+        assert(status in SmsDeliveryStatus.statuses)
+        self.recipient = recipient
+        self.mid = mid
+        self.status = status
+        self.timestamp = timestamp or datetime.now()
+        self.comment = comment
+
+    def __str__(self):
+        return "%s - %s - %s" % (self.mid, self.status, self.timestamp)
+
+    def __getitem__(self, item):
+        return self.__getattribute__(item)

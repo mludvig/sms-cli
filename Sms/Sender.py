@@ -5,16 +5,7 @@
 from Config import Config
 from Exceptions import *
 from Logger import *
-
-class SmsStatus(object):
-    def __init__(self, code, descr = "", verbose = ""):
-        assert(code in [ "UNKNOWN", "TRANSIT", "ERROR", "EXPIRED", "DELIVERED" ])
-        self.code = code
-        self.descr = descr
-        self.verbose = verbose
-
-    def __str__(self):
-        return "%s - %s" % (self.code, self.descr)
+from SimpleObjects import SmsDeliveryStatus
 
 class SmsSender(object):
     def __init__(self, recipients = [], engine_options = {}, **kwargs):
@@ -35,7 +26,10 @@ class SmsSender(object):
 
         return self._driver.receive(senders = senders, in_reply_to = in_reply_to, keep = keep)
 
-    def get_status(self, messageid):
-        return SmsStatus("UNKNOWN", "Not implemented")
+    def get_status(self, mids = [], keep = False):
+        if 'get_status' not in dir(self._driver):
+            raise SmsError(message = "Not implemented in engine: %s" % self._driver.__module__)
+
+        return self._driver.get_status(mids = mids, keep = keep)
 
 # vim: et:sw=4:sts=4:sta:ai:

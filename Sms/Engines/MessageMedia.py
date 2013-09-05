@@ -90,4 +90,46 @@ class SmsDriver(GenericSoap.SmsDriver):
             replies.append(SmsMessage(message = reply_t.content, sender = reply_t.origin, mid = reply_t._uid, timestamp = reply_t.received))
         return replies
 
+    def get_status(self, mids = [], keep = False):
+        report_to_status = {
+            'delivered' : 'DELIVERED',
+            'pending'   : 'TRANSIT',
+            'failed'    : 'ERROR',
+        }
+        reports_raw = []
+
+        check_reports_t = self.client.service.checkReports(self.auth)
+        if not check_reports_t.reports:
+            return []
+
+        if mids == []:
+            reports_raw = check_reports_t.reports.report
+        else:
+            for report_t in check_reports_t.reports.report:
+                debug("SMS(MessageMedia) report [%s] (%s) %s: %s" % (report_t.timestamp, report_t._uid, report_t.recipient, report_t._status))
+                if str(report_t._uid) in mids:
+                    reports_raw.append(report_t)
+
+        # Delete reports from the gateway
+        if reports_raw and not keep:
+            confirm_reports_t = self.client.factory.create("ConfirmReportsBodyType")
+            for report_t in reports_raw:
+                confirm_reports_t.reports.report.append(self.client.factory.create("ConfirmItemType"))
+                confirm_reports_t.reports.report[-1]._receiptId = report_t._receiptId
+            ret = self.client.service.confirmReports(self.auth, confirm_reports_t)
+            debug("SMS(MessageMedia) deleted %d delivery reports" % ret._confirmed)
+
+        statuses = []
+        for report_t in reports_raw:
+            try:
+                status = report_to_status[report_t._status]
+            except KeyError:
+                status = "UNKNOWN"
+            statuses.append(SmsDeliveryStatus(
+                recipient = report_t.recipient,
+                mid = report_t._uid,
+                status = status,
+                timestamp = report_t.timestamp))
+        return statuses
+
 # vim:et:sw=4:sts=4:ai:sta
