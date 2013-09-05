@@ -4,7 +4,7 @@
 
 from Sms.Logger import *
 from Sms.Exceptions import SmsError
-from Sms.SimpleObjects import SmsMessage, SmsSendStatus
+from Sms.SimpleObjects import *
 import GenericSoap
 
 import random
@@ -60,9 +60,9 @@ class SmsDriver(GenericSoap.SmsDriver):
         return mids
 
     def receive(self, senders = [], in_reply_to = [], keep = False):
-        check_replies_t = self.client.service.checkReplies(self.auth)
         replies_raw = []
 
+        check_replies_t = self.client.service.checkReplies(self.auth)
         if not check_replies_t.replies:
             return []
 
@@ -83,10 +83,11 @@ class SmsDriver(GenericSoap.SmsDriver):
                 confirm_replies_t.replies.reply[-1]._receiptId = str(reply_t._receiptId)
                 debug("SMS(MessageMedia) deleting sender=%s, uid=%s: %s" % (reply_t.origin, reply_t._uid, reply_t.content))
             ret = self.client.service.confirmReplies(self.auth, confirm_replies_t)
+            debug("SMS(MessageMedia) deleted %d messages" % ret._confirmed)
 
         replies = []
-        for reply in replies_raw:
-            replies.append(SmsMessage(message = reply.content, sender = reply.origin, mid = reply._uid, timestamp = reply.received))
+        for reply_t in replies_raw:
+            replies.append(SmsMessage(message = reply_t.content, sender = reply_t.origin, mid = reply_t._uid, timestamp = reply_t.received))
         return replies
 
 # vim:et:sw=4:sts=4:ai:sta

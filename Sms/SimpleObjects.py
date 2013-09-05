@@ -4,8 +4,9 @@
 
 from datetime import datetime
 
-__all__ = [ "SmsMessage" ]
+__all__ = []
 
+__all__.append("SmsMessage")
 class SmsMessage(object):
         def __init__(self, message, sender = None, recipients = [], mid = None, timestamp = None):
                 self.message = message
@@ -17,6 +18,7 @@ class SmsMessage(object):
         def __unicode__(self):
                 return self.message
 
+__all__.append("SmsSendStatus")
 class SmsSendStatus(object):
         def __init__(self, message, recipient = None, recipients = [], despatched = True, mid = None, comment = "", **kwargs):
                 if recipient:
