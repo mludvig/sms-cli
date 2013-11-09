@@ -7,8 +7,12 @@ from Sms.Exceptions import SmsError
 from Sms.SimpleObjects import *
 import GenericSoap
 
+import os
 import random
-from suds.client import Client
+try:
+    from suds.client import Client, ObjectCache
+except ImportError, e:
+    raise SmsError("Module 'suds' not found. Please install python-suds package.")
 
 class SmsDriver(GenericSoap.SmsDriver):
     url = 'http://soap.m4u.com.au/?wsdl'
@@ -17,7 +21,9 @@ class SmsDriver(GenericSoap.SmsDriver):
         GenericSoap.SmsDriver.__init__(self, options)
 
         # Soap Client
-        self.client = Client(self.url, cache = self.cache)
+        cache = ObjectCache(location = "/tmp/suds.%d" % os.getuid())
+        cache.setduration(days = 10)
+        self.client = Client(self.url, cache = cache)
 
         # Authentication
         self.auth = self.client.factory.create('AuthenticationType')
