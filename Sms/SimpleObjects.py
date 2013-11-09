@@ -46,7 +46,7 @@ class SmsDeliveryStatus(object):
         self.comment = comment
 
     def __str__(self):
-        return "%s - %s - %s" % (self.mid, self.status, self.timestamp)
+        return "%s - %s - %s - %s" % (self.recipient, self.mid, self.status, self.timestamp)
 
     def __getitem__(self, item):
         return self.__getattribute__(item)
