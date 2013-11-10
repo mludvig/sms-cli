@@ -18,32 +18,19 @@ class SmsMessage(object):
         def __unicode__(self):
                 return self.message
 
-__all__.append("SmsSendStatus")
-class SmsSendStatus(object):
-        def __init__(self, message, recipient = None, recipients = [], despatched = True, mid = None, comment = "", **kwargs):
-                if recipient:
-                        if not recipients:
-                                recipients = [ recipient ]
-                        else:
-                                recipients.append(recipient)
-                self.message = message
-                self.recipients = recipients
-                self.despatched = despatched
-                self.mid = mid
-                self.comment = comment
-                self.xxkwargs = kwargs
-
 __all__.append("SmsDeliveryStatus")
 class SmsDeliveryStatus(object):
     statuses = [ "UNKNOWN", "TRANSIT", "ERROR", "EXPIRED", "DELIVERED", "PENDING" ]
-
-    def __init__(self, recipient = None, mid = None, status = "UNKNOWN", timestamp = None, comment = ""):
-        assert(status in SmsDeliveryStatus.statuses)
+    def __init__(self, message = "", recipient = None, despatched = False, status = None, mid = None, timestamp = None, comment = "", **kwargs):
+        self.message = message
         self.recipient = recipient
+        self.despatched = despatched
         self.mid = mid
-        self.status = status
+        self.status = status or (self.despatched and "TRANSIT" or "ERROR")
         self.timestamp = timestamp or datetime.now()
         self.comment = comment
+        self.xxkwargs = kwargs
+        assert(self.status in SmsDeliveryStatus.statuses)
 
     def __str__(self):
         return "%s - %s - %s - %s" % (self.recipient, self.mid, self.status, self.timestamp)

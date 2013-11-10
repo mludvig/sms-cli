@@ -4,7 +4,7 @@
 
 from Sms.Logger import *
 from Sms.Exceptions import SmsError
-from Sms.SimpleObjects import SmsSendStatus
+from Sms.SimpleObjects import SmsDeliveryStatus
 import GenericHttp
 
 class SmsDriver(GenericHttp.SmsDriver):
@@ -17,10 +17,10 @@ class SmsDriver(GenericHttp.SmsDriver):
         if arr[0].startswith("OK"):
             mid = arr[1].split(":")[-1]
             debug("SMS(SmsGlobal) sent to %s with ID: %s" % (recipient, mid))
-            return SmsSendStatus(message, recipient = recipient, despatched = True, mid = mid)
+            return SmsDeliveryStatus(message, recipient = recipient, despatched = True, mid = mid)
         else:
             debug("SMS(SmsGlobal) failed to %s: %s" % (recipient, ret))
-            return SmsSendStatus(message, recipient = recipient, despatched = False, comment = ret)
+            return SmsDeliveryStatus(message, recipient = recipient, despatched = False, comment = ret)
 
 
 # vim: et:sw=4:sts=4:sta:ai:

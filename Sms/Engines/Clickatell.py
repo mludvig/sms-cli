@@ -4,7 +4,7 @@
 
 from Sms.Logger import *
 from Sms.Exceptions import SmsError
-from Sms.SimpleObjects import SmsSendStatus
+from Sms.SimpleObjects import SmsDeliveryStatus
 import GenericHttp
 
 class SmsDriver(GenericHttp.SmsDriver):
@@ -16,9 +16,9 @@ class SmsDriver(GenericHttp.SmsDriver):
         arr = ret.split("\n")[0].split(" ", 1)
         if arr[0].startswith("ID"):
             debug("SMS(Clickatell) sent to %s with ID: %s" % (recipient, arr[1]))
-            return SmsSendStatus(message, recipient = recipient, despatched = True, mid = arr[1])
+            return SmsDeliveryStatus(message, recipient = recipient, despatched = True, mid = arr[1])
         else:
             debug("SMS(Clickatell) failed to %s: %s" % (recipient, ret))
-            return SmsSendStatus(message, recipient = recipient, despatched = False, comment = ret)
+            return SmsDeliveryStatus(message, recipient = recipient, despatched = False, comment = ret)
 
 # vim: et:sw=4:sts=4:sta:ai:

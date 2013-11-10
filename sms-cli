@@ -84,9 +84,9 @@ try:
         message = SmsMessage(message = args.message, recipients = args.recipients)
         for status in sms.send(message):
             if status.despatched:
-                info("Sent to %s: %s" % ("/".join(status.recipients), status.mid))
+                info("Sent to %s: %s" % (status.recipient, status.mid))
             else:
-                warning("Failed to %s: %s" % ("/".join(status.recipients), status.comment))
+                warning("Failed to %s: %s" % (status.recipient, status.comment))
     elif args.command == "receive":
         for message in sms.receive(senders = args.senders, in_reply_to = args.ids, keep = args.keep):
             info("[%s] from %s: %s" % (message.timestamp, message.sender, message.message))

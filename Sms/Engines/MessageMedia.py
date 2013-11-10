@@ -57,12 +57,12 @@ class SmsDriver(GenericSoap.SmsDriver):
                     for recipient in error.recipients.recipient:
                         debug("SMS(MessageMedia) failed to %s: %s" % (recipient.value, error._code))
                         error_recipients.append(recipient.value)
-                        mids.append(SmsSendStatus(message.message, recipient = recipient.value, despatched = False, comment = error._code))
+                        mids.append(SmsDeliveryStatus(message.message, recipient = recipient.value, despatched = False, comment = error._code))
 
         for recipient in message_t.recipients.recipient:
             if recipient.value not in error_recipients:
                 debug("SMS(MessageMedia) sent to %s with ID: %s" % (recipient.value, recipient._uid))
-                mids.append(SmsSendStatus(message.message, recipient = recipient.value, despatched = True, mid = recipient._uid))
+                mids.append(SmsDeliveryStatus(message.message, recipient = recipient.value, despatched = True, mid = recipient._uid))
         return mids
 
     def receive(self, senders = [], in_reply_to = [], keep = False):
