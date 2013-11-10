@@ -8,15 +8,15 @@ __all__ = []
 
 __all__.append("SmsMessage")
 class SmsMessage(object):
-        def __init__(self, message, sender = None, recipients = [], mid = None, timestamp = None):
-                self.message = message
-                self.sender = sender
-                self.recipients = recipients
-                self.mid = mid
-                self.timestamp = timestamp or datetime.now()
+    def __init__(self, message, sender = None, recipients = [], mid = None, timestamp = None):
+        self.message = message
+        self.sender = sender
+        self.recipients = recipients
+        self.mid = mid
+        self.timestamp = timestamp or datetime.now()
 
-        def __unicode__(self):
-                return self.message
+    def __unicode__(self):
+        return self.message
 
 __all__.append("SmsDeliveryStatus")
 class SmsDeliveryStatus(object):
