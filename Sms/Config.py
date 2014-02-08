@@ -119,7 +119,7 @@ class ConfigParser(object):
                     print_value = "..."
                 else:
                     print_value = data["value"]
-                debug("ConfigParser: %s->%s" % (data["key"], print_value))
+                #debug("ConfigParser: %s->%s" % (data["key"], print_value))
                 continue
             raise SmsConfigError("%s: invalid line: %s" % (cfgfile.name, line))
         if not our_section_found:

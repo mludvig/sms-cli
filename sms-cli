@@ -58,7 +58,7 @@ def parse_args():
 args = parse_args()
 
 ## Set logging level before parsing the config file
-logger_init(level = args.verbosity)
+logger_set_level(level = args.verbosity)
 
 ## Now finally parse the config file
 try:
