@@ -9,10 +9,20 @@ import GenericSoap
 
 import os
 import random
+from datetime import datetime
 try:
     from suds.client import Client, ObjectCache
 except ImportError, e:
     raise SmsError("Module 'suds' not found. Please install python-suds package.")
+
+replies_fetched = []
+replies_fetched_timestamp = datetime.min
+reports_fetched = []
+reports_fetched_timestamp = datetime.min
+
+def _timedelta_total_seconds(timedelta):
+    # timedelta.total_seconds is not available in Python 2.6
+    return timedelta.days * 86400 + timedelta.seconds + timedelta.microseconds/1000000
 
 class SmsDriver(GenericSoap.SmsDriver):
     url = 'http://soap.m4u.com.au/?wsdl'
@@ -66,19 +76,32 @@ class SmsDriver(GenericSoap.SmsDriver):
         return mids
 
     def receive(self, senders = [], in_reply_to = [], keep = False):
+        global replies_fetched, replies_fetched_timestamp
+
         replies_raw = []
 
-        check_replies_t = self.client.service.checkReplies(self.auth)
-        if not check_replies_t.replies:
-            return []
+        replies_fetched_age = datetime.now() - replies_fetched_timestamp
+        if _timedelta_total_seconds(replies_fetched_age) < 60:
+            debug("SMS(MessageMedia) using cached replies: %s sec old" % (_timedelta_total_seconds(replies_fetched_age)))
+        else:
+            replies_fetched_timestamp = datetime.now()
+
+            check_replies_t = self.client.service.checkReplies(self.auth)
+            if not check_replies_t.replies:
+                replies_fetched = []
+            else:
+                replies_fetched = check_replies_t.replies.reply
+            debug("SMS(MessageMedia) received %d replies" % len(replies_fetched))
+            for reply_t in replies_fetched:
+                debug("SMS(MessageMedia) received reply sender=%s, uid=%s: %s" % (reply_t.origin, reply_t._uid, reply_t.content))
 
         # Fetch new messages
         if senders == [] and in_reply_to == []:
-            replies_raw = check_replies_t.replies.reply
+            replies_raw = replies_fetched
         else:
-            for reply_t in check_replies_t.replies.reply:
-                debug("SMS(MessageMedia) received sender=%s, uid=%s: %s" % (reply_t.origin, reply_t._uid, reply_t.content))
+            for reply_t in replies_fetched:
                 if str(reply_t._uid) in in_reply_to or reply_t.origin in senders:
+                    debug("SMS(MessageMedia) matching reply sender=%s, uid=%s: %s" % (reply_t.origin, reply_t._uid, reply_t.content))
                     replies_raw.append(reply_t)
 
         # Delete messages from the gateway
@@ -97,23 +120,37 @@ class SmsDriver(GenericSoap.SmsDriver):
         return replies
 
     def get_status(self, mids = [], keep = False):
+        global reports_fetched, reports_fetched_timestamp
+
         report_to_status = {
             'delivered' : 'DELIVERED',
             'pending'   : 'TRANSIT',
             'failed'    : 'ERROR',
         }
+
         reports_raw = []
 
-        check_reports_t = self.client.service.checkReports(self.auth)
-        if not check_reports_t.reports:
-            return []
+        reports_fetched_age = datetime.now() - reports_fetched_timestamp
+        if _timedelta_total_seconds(reports_fetched_age) < 60:
+            debug("SMS(MessageMedia) using cached delivery reports: %s sec old" % (_timedelta_total_seconds(reports_fetched_age)))
+        else:
+            reports_fetched_timestamp = datetime.now()
+
+            check_reports_t = self.client.service.checkReports(self.auth)
+            if not check_reports_t.reports:
+                reports_fetched = []
+            else:
+                reports_fetched = check_reports_t.reports.report
+            debug("SMS(MessageMedia) fetched %d delivery reports" % len(reports_fetched))
+            for report_t in reports_fetched:
+                debug("SMS(MessageMedia) report [%s] (uid=%s) %s: %s" % (report_t.timestamp, report_t._uid, report_t.recipient, report_t._status))
 
         if mids == []:
-            reports_raw = check_reports_t.reports.report
+            reports_raw = reports_fetched
         else:
-            for report_t in check_reports_t.reports.report:
-                debug("SMS(MessageMedia) report [%s] (%s) %s: %s" % (report_t.timestamp, report_t._uid, report_t.recipient, report_t._status))
+            for report_t in reports_fetched:
                 if str(report_t._uid) in mids:
+                    debug("SMS(MessageMedia) matching delivery report [%s] (uid=%s) %s: %s" % (report_t.timestamp, report_t._uid, report_t.recipient, report_t._status))
                     reports_raw.append(report_t)
 
         # Delete reports from the gateway
